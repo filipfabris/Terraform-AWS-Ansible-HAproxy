@@ -1,5 +1,5 @@
 
-aws_pem_key_file_path = "./verso_key.pem"
+aws_pem_key_file_path = "./verso_key.pem" #Example
 aws_pub_key_file_path = "./verso_key.pub"
 aws_key_name = "verso_key"
 
