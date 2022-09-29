@@ -1,0 +1,46 @@
+chmod 400 my_aws.pem #mora bit
+ssh -i "my_aws.pem" ec2-user@54.226.156.98
+
+
+security_groups = ["${aws_security_group.test_security_group.name}"]
+security_groups = [ "sg-7310e10b" ]
+
+or 
+
+vpc_security_group_ids = ["${aws_security_group.test_security_group.id}"]
+vpc_security_group_ids = [ "sg-7310e10b" ] 
+
+##security_groups refers to ec2-classic that runs on flat network and probably get reinitiated on each creation, vpc_security_group_ids is the modern and standard way for associate ##firewall rules to your ec2 in a vpc netwrok - therefore it's persisted and you should pick this one, It won't initiate and recreate itself on each terraform apply. 
+
+
+
+resource "aws_vpc" "main" {  //private ip address range
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "main"
+  }
+}
+
+resource "aws_subnet" "main" {  //subnet for private ip address which will and will not have access to internet
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+
+  tags = {
+    Name = "Main"
+  }
+}
+
+
+
+### users created for ssh
+For Amazon Linux 2 or the Amazon Linux AMI, the user name is      ec2-user
+For a CentOS AMI, the user name is                                centos or ec2-user
+For a Debian AMI, the user name is                                admin
+For a Fedora AMI, the user name is                                fedora or ec2-user
+For a RHEL AMI, the user name is                                  ec2-user or root
+For a SUSE AMI, the user name is                                  ec2-user or root
+For an Ubuntu AMI, the user name is                               ubuntu
+For an Oracle AMI, the user name is                               ec2-user
+For a Bitnami AMI, the user name is                               bitnami

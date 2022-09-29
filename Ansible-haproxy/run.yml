@@ -1,0 +1,27 @@
+- hosts: all
+  gather_facts: 'yes'
+  tasks:
+    - name: running role
+      debug: "var inventory_hostname is '{{inventory_hostname}}'"
+      
+- hosts: httpd
+  gather_facts: 'yes'
+  vars:
+    httpd_ip: '{{inventory_hostname}}'
+  tasks:
+    - name: running role
+      include_role:
+        name: httpd
+
+- hosts: haproxy
+  vars:
+    haproxy_ip: '{{inventory_hostname}}'
+    httpd_servers_ips:  '{{groups[''httpd'']}}' 
+  gather_facts: 'yes'
+  tasks:
+    - name: running role
+      include_role:
+        name: haproxy
+
+
+

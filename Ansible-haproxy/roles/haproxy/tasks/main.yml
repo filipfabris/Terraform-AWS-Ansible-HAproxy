@@ -1,0 +1,81 @@
+- name: update repo cache updates
+  yum:
+    update_only: 'yes'
+    update_cache: 'yes'
+  changed_when: false
+
+- name: Download haproxy package
+  package:
+    name: haproxy
+    state: present
+
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+
+# - name: Get HAProxy version.
+#   command: haproxy -v
+#   register: haproxy_version_result
+#   changed_when: false
+#   check_mode: false
+
+# - name: Set HAProxy version. ansible_facts['distribution']
+#   set_fact:
+#     haproxy_version: '{{ haproxy_version_result.stdout_lines[0] | regex_replace("^HA-Proxy version ([0-9]\.[0-9]\.[0-9]{1,2})*$", "\1") }}'
+
+# - name: Prints two lines of messages, but only if there is an environment value set
+#   debug:
+#     msg:
+#     - "haproxy_version: {{haproxy_version}}"
+
+# - name: packages
+#   debug:
+#     msg:
+#     - "packages zip: {{packages.haproxy[0].version}}" #uvijek [0] jer se radi o listi
+
+- name: Set HAProxy version.
+  set_fact:
+    haproxy_version: '{{packages.haproxy[0].version}}' #uvijek [0] jer se radi o listi
+
+
+- name: Creates directory errors inside haproxy
+  file:
+    path: /etc/haproxy/errors/
+    state: directory
+
+- name: generate empty file from a list of file names
+  file:
+    path: '/etc/haproxy/errors/{{ item }}'
+    state: touch
+  loop:
+    - 400.http
+    - 403.http
+    - 408.http
+    - 500.http
+    - 502.http
+    - 503.http
+    - 504.http
+
+
+
+- name: Prints ansible_facts['distribution']
+  debug:
+    msg:
+    - "ansible_facts['distribution']: {{ansible_facts['distribution']}}"
+
+- name: Copy HAProxy configuration in place.
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 420
+
+- name: Start service
+  service:
+    name: haproxy
+    state: restarted
+
+- name: Ensure HAProxy is started and enabled on boot.
+  service:
+    name: haproxy
+    state: started
+    enabled: 'yes'

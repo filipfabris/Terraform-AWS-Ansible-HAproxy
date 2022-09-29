@@ -1,0 +1,53 @@
+---
+
+# Global
+haproxy_log: /var/log
+haproxy_socket: /var/lib/haproxy/stats
+haproxy_chroot: /var/lib/haproxy
+haproxy_user: haproxy
+haproxy_group: haproxy
+haproxy_pidifle: /var/run/haproxy.pid
+haproxy_maxconn: 200
+
+# Extra global vars
+haproxy_global_vars: []
+
+# Local
+haproxy_retries: 3
+haproxy_connect_timeout: 5000
+haproxy_client_timeout: 50000
+haproxy_server_timeout: 50000
+
+# Extra default vars
+haproxy_default_vars:
+  - 'timeout client     1m'
+
+# Frontend settings.
+haproxy_frontend_name: 'hafrontend'
+#haproxy_frontend_bind_address: "{{haproxy_ip}}"
+haproxy_frontend_bind_address: "{{load_balancer_private_ip}}"
+haproxy_frontend_port: 80
+haproxy_frontend_mode: 'http'
+
+# Extra Frontend settings
+haproxy_frontend_mode_vars: 
+  - 'maxconn 1000'
+
+# Backend settings.
+haproxy_backend_name: 'habackend'
+haproxy_backend_mode: 'http'
+haproxy_backend_balance_method: 'roundrobin'
+#haproxy_backend_httpchk: 'HEAD / HTTP/1.1\r\nHost:localhost'
+haproxy_backend_httpchk: ''
+
+
+# List of backend servers.
+haproxy_backend_servers: |
+    [
+    {% for item in httpd_servers_ips %}
+      {"name": "web{{loop.index0}}", "address": "{{item}}:80"},
+    {% endfor %}
+    ]
+
+
+

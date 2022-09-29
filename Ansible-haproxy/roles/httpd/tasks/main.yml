@@ -1,0 +1,23 @@
+- name: update repo cache updates
+  yum:
+    update_only: 'yes'
+    update_cache: 'yes'
+  changed_when: false
+
+- name: Download haproxy package
+  package:
+    name: httpd
+    state: present
+
+- name: Copy HAProxy configuration in place.
+  template:
+    src: indey.html.cfg.j2
+    dest: /var/www/html/index.html
+    mode: 420
+  
+
+- name: start httpd
+  service:
+    name: httpd
+    state: started
+
